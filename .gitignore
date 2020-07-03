@@ -1,0 +1,8 @@
+main
+*.json
+*.csv
+*.sh
+*.out
+*.text
+*.txt
+*.xqc
