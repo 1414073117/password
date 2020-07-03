@@ -6,3 +6,4 @@ main
 *.text
 *.txt
 *.xqc
+__pycache__/
