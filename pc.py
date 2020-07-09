@@ -6,6 +6,8 @@ import platform
 import time
 import csv
 import re
+import lxml
+from lxml import etree
 from tqdm import tqdm
 import urllib3
 import password_xz
@@ -22,7 +24,8 @@ head_wind10_chrom = {
 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
 }
 
-url = "http://61.180.173.188:60001/cgi-bin/gw.cgi?xml=%3Cjuan%20ver=%22%22%20squ=%22%22%20dir=%220%22%3E%3Crpermission%20usr=%22admin%22%20pwd=%22456%22%3E%3Cconfig%20base=%22%22/%3E%3Cplayback%20base=%22%22/%3E%3C/rpermission%3E%3C/juan%3E&_=1593571438026"
+url = "http://10.20.53.58/users/sign_in"
+# url = "http://61.180.173.188:60001/cgi-bin/gw.cgi?xml=%3Cjuan%20ver=%22%22%20squ=%22%22%20dir=%220%22%3E%3Crpermission%20usr=%22admin%22%20pwd=%22456%22%3E%3Cconfig%20base=%22%22/%3E%3Cplayback%20base=%22%22/%3E%3C/rpermission%3E%3C/juan%3E&_=1593571438026"
 def url_parameter(url):
     para = {}
     for ur in url.split("&"):
@@ -61,19 +64,51 @@ def url_hostporturl(url):
 
 def url_text(url,headers = head_wind10_chrom):
     urlpa = url_hostporturl(url)
-    print(urlpa)
+    # print(urlpa)
     if urlpa["post"] != "":
         headers["Host"] = urlpa["ip"] + ":" + urlpa["post"]
     else :
         headers["Host"] = urlpa["ip"]
-    print(headers)
+    # print(headers)
     res = requests.get(url = url,verify=False,headers=headers,stream=True)
-    print(res.text)
-    print(res.status_code)
+    html = etree.HTML(res.text)
+    print("html:",html)
+    for a in html.xpath('//a'):
+        # print("1:",a.xpath('text()'))
+        if "Sign in" in a.xpath('text()'):
+            if a.xpath("@href") != []:
+                print(a.xpath("@href"))
+            if a.xpath("@url") != []:
+                print(a.xpath("@url"))
+    for a in html.xpath('//form'):
+        # print("1:",a.xpath('@*') + a.xpath('text()'))
+        if "Sign in" in a.xpath('@*') + a.xpath('text()'):
+            if a.xpath("@href") != []:
+                print(a.xpath("@href"))
+            if a.xpath("@action") != []:
+                print(a.xpath("@action"))
+        for a1 in a.xpath('//*'):
+            # print("2:",a1.xpath('@*') + a1.xpath('text()'))
+            if "Sign in" in a1.xpath('@*') + a1.xpath('text()'):
+                if a1.xpath("@href") != []:
+                    print(a1.xpath("@href"))
+                if a1.xpath("@url") != []:
+                    print(a1.xpath("@url"))
+                if a.xpath("@href") != []:
+                    print(a.xpath("@href"))
+                if a.xpath("@action") != []:
+                    print(a.xpath("@action"))
+    # print(result)
+    # result = etree.tostring(html,encoding='utf-8')
+    # print("result:",result)
+    # print(res.text)
+    # print(res.status_code)
 
 if __name__ == "__main__":
-    # url_text(url)
+    url_text(url)
     # for passer in dictionary_read("key.xqc",5):
         # print(passer)
     # dictionary_write("key.xqc",["0","15","16"],1)
-    password_xz.dictionary_write("cs.xqc",password_xz.keydigit + password_xz.keybigle + password_xz.keysmale,4)
+    # password_xz.dictionary_write("cs.xqc",password_xz.keydigit + password_xz.keybigle + password_xz.keysmale,4,True)
+    # for i in password_xz.dictionary_dg_contain(password_xz.keydigit + password_xz.keybigle + password_xz.keysmale,4):
+        # print(i)
